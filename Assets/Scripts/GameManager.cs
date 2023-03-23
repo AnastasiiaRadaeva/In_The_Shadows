@@ -1,32 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Controlling of the start items position.
+// Detecting of the victory and setting of the items to the right positions.
 public class GameManager : MonoBehaviour
 {
-    private List<ShadowManager> _shadowManagers;
+    public List<GameObject> items;
+    public bool victory;
+    
     [SerializeField] private Button nextButton;
     [SerializeField] private GameObject victoryImage;
     [SerializeField] private GameObject unlockText;
     [SerializeField] private GameObject mainCamera;
-    private AudioSource _sceneMusic;
 
-    public List<GameObject> items;
-    public int countOfObjectsInProcess = -1;
-    public bool victory;
+    private List<ShadowManager> _shadowManagers;
     
-    
-
-    // Start is called before the first frame update
     void Start()
     {
-        if(Settings.GameMusic)
+        if(GameState.GameMusic) 
             mainCamera.GetComponent<AudioSource>().Play();
         victory = false;
-        countOfObjectsInProcess = items.Count;
         _shadowManagers = new List<ShadowManager>();
 
         for (int i = 0; i < items.Count; i++)
@@ -44,18 +39,15 @@ public class GameManager : MonoBehaviour
             victory = true;
             victoryImage.SetActive(true);
             for (int i = 0; i < items.Count; i++)
-            {
                 SetObjectToTargetPosition(_shadowManagers[i], items[i]);
-            }
-            if (SceneManager.GetActiveScene().buildIndex <= Settings.Data.tasksStatus.Length)
+            // detect the current scene is not the last one
+            if (SceneManager.GetActiveScene().buildIndex <= SaveSerial.Data.tasksStatus.Length)
             {
-                if (Settings.GameMode == GameMode.NormalMode)
+                if (GameState.GameMode == GameMode.NormalMode &&
+                    !SaveSerial.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1])
                 {
-                    if (!Settings.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1])
-                    {
-                        Settings.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1] = true;
-                        unlockText.SetActive(true);
-                    }
+                    SaveSerial.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1] = true;
+                    unlockText.SetActive(true);
                 }
                 nextButton.gameObject.SetActive(true);
             }
@@ -64,43 +56,43 @@ public class GameManager : MonoBehaviour
 
     private bool DetectVictory()
     {
-        if (countOfObjectsInProcess == 0) return true;
+        int numberOfCompletedObj = 0;
         foreach (var obj in _shadowManagers)
-        {
-            countOfObjectsInProcess = obj.Victory
-                ? countOfObjectsInProcess - 1
-                : countOfObjectsInProcess;
-        }
-        return countOfObjectsInProcess == 0;
+            numberOfCompletedObj += obj.victory ? 1 : 0;
+        return numberOfCompletedObj == _shadowManagers.Count;
     }
 
     private void SetObjectToStartPosition(int index)
     {
         GameObject item = items[index];
-        if (Settings.Data.saveForCurrentLevelExist && 
-            Settings.Data.activeTask == SceneManager.GetActiveScene().buildIndex)
+        if (GameState.GameMode == GameMode.NormalMode &&
+            (!SaveSerial.Data.taskDone && SaveSerial.Data.activeTask == SceneManager.GetActiveScene().buildIndex))
         {
-            item.transform.rotation = Settings.Data.itemsRotation[index];
+            item.transform.rotation = SaveSerial.Data.itemsRotation[index];
             if (item.GetComponent<ObjectMover>().move)
-                item.transform.position = Settings.Data.itemsPosition[index];
+                item.transform.position = SaveSerial.Data.itemsPosition[index];
         }
         else
         {
-            item.transform.RotateAround(item.transform.position, Vector3.up, Random.Range(20f, 340f));
+            item.transform.RotateAround(item.transform.position, Vector3.up, 
+                Random.Range(Settings.MinRandomRotateAngle, Settings.MaxRandomRotateAngle));
             if (item.GetComponent<ObjectMover>().upDownRotate)
-                item.transform.RotateAround(item.transform.position, Vector3.right, Random.Range(20f, 340f));
+                item.transform.RotateAround(item.transform.position, Vector3.right, 
+                    Random.Range(Settings.MinRandomRotateAngle, Settings.MaxRandomRotateAngle));
             if (item.GetComponent<ObjectMover>().move)
             {
+                float xShift = Random.Range(-Settings.RandomXShift, Settings.RandomXShift);
                 Vector3 pos = item.transform.position;
-                item.transform.position = new Vector3(pos.x + Random.Range(-10f, 10f), pos.y, pos.z);
+                item.transform.position = new Vector3(pos.x + xShift, pos.y, pos.z);
             }
         }
     }
 
     private void SetObjectToTargetPosition(ShadowManager shadow, GameObject item)
     {
-        item.transform.rotation = Quaternion.Lerp(item.transform.rotation, shadow.targetRotation, 0.01f);
+        item.transform.rotation = 
+            Quaternion.Lerp(item.transform.rotation, shadow.targetRotation, Settings.InterpolationRatio);
         item.transform.position = 
-            Vector3.Lerp(item.transform.position, shadow.targerPosition, Time.deltaTime * 1.0f);
+            Vector3.Lerp(item.transform.position, shadow.targetPosition, Settings.InterpolationRatio);
     }
 }

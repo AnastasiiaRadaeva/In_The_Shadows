@@ -317,7 +317,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: d7da043498c5848168f809fb9a005abf, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -873,13 +873,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e0226e91e6c4ac290fc47eae79ba37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  targetPosition: {x: -20, y: 3, z: 15}
+  victory: 0
   x: -0.65751
   y: 0.09491
   z: -0.12819
   w: -0.73637
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
-  targerPosition: {x: -20, y: 3, z: 15}
-  Victory: 0
 --- !u!1001 &1147571084
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -907,6 +907,10 @@ PrefabInstance:
       propertyPath: fadeScene
       value: 
       objectReference: {fileID: 408118223}
+    - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
+      propertyPath: gameManagerObj
+      value: 
+      objectReference: {fileID: 1385547716}
     - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
       propertyPath: items.Array.size
       value: 1
@@ -1281,14 +1285,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18bf79bc2c6b34ed79e155c5e90af987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  items:
+  - {fileID: 1127975916}
+  victory: 0
   nextButton: {fileID: 1162087985}
   victoryImage: {fileID: 2059445239}
   unlockText: {fileID: 1816512578}
   mainCamera: {fileID: 289251037}
-  items:
-  - {fileID: 1127975916}
-  countOfObjectsInProcess: -1
-  victory: 0
 --- !u!4 &1385547718
 Transform:
   m_ObjectHideFlags: 0

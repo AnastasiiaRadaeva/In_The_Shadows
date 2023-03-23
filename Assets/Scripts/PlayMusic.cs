@@ -1,12 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// Controlling of the checkmarks and menu/game music. 
 public class PlayMusic : MonoBehaviour
 {
     [SerializeField] private GameObject mainCamera;
+    
     private Toggle _toggle;
     private AudioSource _audioMainCamera;
     
@@ -14,23 +13,23 @@ public class PlayMusic : MonoBehaviour
     {
         _toggle = GetComponent<Toggle>();
 
-        if (gameObject.name[.. 4] == "Menu")
+        if (gameObject.name[.. Settings.CheckboxNameLength] == Settings.MenuSceneName)
         {
             _audioMainCamera = mainCamera.GetComponent<AudioSource>();
-            _toggle.isOn = Settings.MenuMusic;
+            _toggle.isOn = GameState.MenuMusic;
         }
         else
-            _toggle.isOn = Settings.GameMusic;
+            _toggle.isOn = GameState.GameMusic;
     }
 
     public void ToggleMusic(bool toggleOn)
     {
-        if (gameObject.name[.. 4] == "Menu")
+        if (gameObject.name[.. Settings.CheckboxNameLength] == Settings.MenuSceneName)
         {
-            Settings.MenuMusic = toggleOn;
+            GameState.MenuMusic = toggleOn;
             _audioMainCamera.enabled = toggleOn;
         }
         else
-            Settings.GameMusic = toggleOn;
+            GameState.GameMusic = toggleOn;
     }
 }

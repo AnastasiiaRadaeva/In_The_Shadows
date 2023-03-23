@@ -1,35 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
+// Detecting of the right item position.
 public class ShadowManager : MonoBehaviour
 {
+    public Quaternion targetRotation;
+    public Vector3 targetPosition;
+    public bool victory = false;
+    
     [SerializeField] private float x;
     [SerializeField] private float y;
     [SerializeField] private float z;
     [SerializeField] private float w;
     
-    public Quaternion targetRotation;
-    public Vector3 targerPosition;
-    public bool Victory = false;
-
     private ObjectMover _objMover;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
-        _objMover = gameObject.GetComponent<ObjectMover>();
+        _objMover = GetComponent<ObjectMover>();
         targetRotation = new Quaternion(x, y, z, w);
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         if (Quaternion.Angle(transform.rotation, targetRotation) <= Settings.AngleTolerance && 
-            ((_objMover.move && AbsVal(transform.position.x, targerPosition.x) <= Settings.DistanceTolerance) || !_objMover.move))
+            ((_objMover.move && AbsVal(transform.position.x, targetPosition.x) <= Settings.DistanceTolerance) 
+             || !_objMover.move))
         {
-            Victory = true;
+            victory = true;
         }
     }
 

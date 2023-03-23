@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Controlling of the majority of the "Menu" scene buttons.
 public class UIManager : MonoBehaviour
 {
     // Canvas Components
@@ -34,12 +32,13 @@ public class UIManager : MonoBehaviour
     // UI
     [SerializeField] private Button backButton;
 
+    // Main camera for Audio (AudioSource - menu music)
     [SerializeField] private GameObject mainCamera;
 
-    // Start is called before the first frame update
     void Start()
     {
-        mainCamera.GetComponent<AudioSource>().enabled = Settings.MenuMusic;
+        // Turn on/off music
+        mainCamera.GetComponent<AudioSource>().enabled = GameState.MenuMusic;
         
         normalModeButton.onClick.AddListener(NormalModeMenu);
         testModeButton.onClick.AddListener(TestModeMenu);
@@ -51,16 +50,17 @@ public class UIManager : MonoBehaviour
         dontSaveButton.onClick.AddListener(DontSave);
         okButton.onClick.AddListener(LoadGameMenu);
 
+        // Select right menu
         RunScene();
     }
 
     public void RunScene()
     {
-        if (Settings.GameMode == GameMode.NormalMode)
+        if (GameState.GameMode == GameMode.NormalMode)
             NormalModeMenu();
-        else if (Settings.GameMode == GameMode.TestMode)
+        else if (GameState.GameMode == GameMode.TestMode)
             TestModeMenu();
-        else if (Settings.GameMode == GameMode.LoadGame)
+        else if (GameState.GameMode == GameMode.LoadGame)
             LoadGameMenu();
         else
             MainMenu();
@@ -68,17 +68,30 @@ public class UIManager : MonoBehaviour
     
     void MainMenu()
     {
-        Settings.GameMode = GameMode.MainMenu;
+        GameState.GameMode = GameMode.MainMenu;
         DisableCanvas();
         mainMenu.SetActive(true);
-        loadGameLocker.gameObject.SetActive(Settings.RecordsNames.Count == 0);
+        // Turn off Load Game Button if there aren't records
+        loadGameLocker.gameObject.SetActive(SaveSerial.RecordsNames.Count == 0);
     }
-
+    
+    void SaveMenu()
+    {
+        saveMenu.SetActive(true);
+        backButton.gameObject.SetActive(false);
+    }
+    
+    
+    
+    //-------------------------
+    // Buttons functionality --
+    //-------------------------
+    
     void NormalModeMenu()
     {
-        if (Settings.RecordsNames.Count < 10)
+        if (SaveSerial.RecordsNames.Count < Settings.MaxRecordCount)
         {
-            Settings.GameMode = GameMode.NormalModeMenu;
+            GameState.GameMode = GameMode.NormalModeMenu;
             DisableCanvas();
             levelsMenu.SetActive(true); 
             lockerIconsObj.SetActive(true);
@@ -87,12 +100,11 @@ public class UIManager : MonoBehaviour
         }
         else
             storageFullMenu.SetActive(true);
-
     }
     
     void TestModeMenu()
     {
-        Settings.GameMode = GameMode.TestModeMenu;
+        GameState.GameMode = GameMode.TestModeMenu;
         DisableCanvas();
         levelsMenu.SetActive(true);
         backButton.gameObject.SetActive(true);
@@ -100,51 +112,21 @@ public class UIManager : MonoBehaviour
 
     void LoadGameMenu()
     {
-        Settings.GameMode = GameMode.LoadGameMenu;
-
-        if (Settings.Data.sessionInProgress)
+        GameState.GameMode = GameMode.LoadGameMenu;
+        if (SaveSerial.Data.sessionInProgress)
             SaveMenu();
         else
         {
             DisableCanvas();
             loadGameButtons.SetActive(true);
-            loadGameButtons.GetComponent<LoadGameButtons>().PlaceButtons();
             backButton.gameObject.SetActive(true);
+            loadGameButtons.GetComponent<LoadGameButtons>().PlaceButtons();
         }
     }
-
-    void SaveMenu()
-    {
-        saveMenu.SetActive(true);
-        backButton.gameObject.SetActive(false);
-    }
-
-    void Save()
-    {
-        if (Settings.RecordsNames.Count < Settings.MaxRecordCount)
-        {
-            SaveSerial.SaveGame();
-            Settings.RecordsNames = SaveSerial.WriteRecordsFromDirectory();
-            SaveSerial.ResetData();
-            if (Settings.GameMode == GameMode.LoadGameMenu)
-                LoadGameMenu();
-            else if (Settings.GameMode == GameMode.MainMenu)
-                ExitGame();
-        }
-    }
-
-    void DontSave()
-    {
-        SaveSerial.ResetData();
-        if (Settings.GameMode == GameMode.LoadGameMenu)
-            LoadGameMenu();
-        else if (Settings.GameMode == GameMode.MainMenu)
-            ExitGame();
-    }
-
+    
     void SettingsMenu()
     {
-        Settings.GameMode = GameMode.SettingMenu;
+        GameState.GameMode = GameMode.SettingMenu;
         DisableCanvas();
         settingsMenu.SetActive(true);
         backButton.gameObject.SetActive(true);
@@ -152,19 +134,45 @@ public class UIManager : MonoBehaviour
     
     void ExitGame()
     {
-        if (Settings.Data.sessionInProgress)
+        if (SaveSerial.Data.sessionInProgress)
             SaveMenu();
         else
-        {
-            Debug.Log("Exit");
             Application.Quit();
+    }
+    
+    void Save()
+    {
+        if (SaveSerial.RecordsNames.Count < Settings.MaxRecordCount)
+        {
+            SaveSerial.SaveGame();
+            SaveSerial.RecordsNames = SaveSerial.WriteRecordsFromDirectory();
+            SaveSerial.ResetData();
+            if (GameState.GameMode == GameMode.LoadGameMenu)
+                LoadGameMenu();
+            else if (GameState.GameMode == GameMode.MainMenu)
+                ExitGame();
         }
     }
+
+    void DontSave()
+    {
+        SaveSerial.ResetData();
+        if (GameState.GameMode == GameMode.LoadGameMenu)
+            LoadGameMenu();
+        else if (GameState.GameMode == GameMode.MainMenu)
+            ExitGame();
+    }
+    
+    
+    
+    //------------------
+    // Helper methods --
+    //------------------
 
     void LockerStatus()
     {
         for (int i = 0; i < lockerIcons.Count; i++)
-            lockerIcons[i].SetActive(!Settings.Data.tasksStatus[i]);
+            lockerIcons[i].SetActive(!SaveSerial.Data.tasksStatus[i]);
     }
 
     void DisableCanvas()

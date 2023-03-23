@@ -1,129 +1,133 @@
-using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Creation, placement and controlling of the load buttons.
+// Controlling of "Load" and "Delete" buttons.
 public class LoadGameButtons : MonoBehaviour
 {
-    public Sprite sprite;
-    public Button loadButton;
-    public GameObject deleteButton;
-    public GameObject loadManagerMenu;
-    public GameObject storageFullMenu;
-
-    private GameObject _text;
-    private GameObject _button;
+    [SerializeField] private Sprite sprite;
+    [SerializeField] private GameObject loadManagerMenu;
+    [SerializeField] private Button loadButton;
+    [SerializeField] private Button deleteButton;
+    [SerializeField] private GameObject storageFullMenu;
+    [SerializeField] private GameObject uiManager;
+    
     private UIManager _uiManager;
+    private string _curRecordName = "";
+    private List<GameObject> _buttonsList = new List<GameObject>();
+    private float _distanceBetweenButtonsAxes;
 
-    private float _heightButton = 100f;
-    private float _wideButton = 570f;
-    private float _distanceBetweenButtons = 40f;
-
-    private string _recordName = "";
-    // private AudioSource _deleteAudio;
-
-    private List<GameObject> _gameObjList = new List<GameObject>();
-
-    public void Start()
+    public void Awake()
     {
-        _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
-        // _deleteAudio = deleteButton.GetComponent<AudioSource>();
+        _uiManager = uiManager.GetComponent<UIManager>();
+        _distanceBetweenButtonsAxes = LoadButton.Height + LoadButton.DistanceBetweenButtons;
         loadButton.onClick.AddListener(LoadRecord);
-        deleteButton.GetComponent<Button>().onClick.AddListener(DeleteRecord);
+        deleteButton.onClick.AddListener(DeleteRecord);
     }
-
+    
+    
+    
+    //--------------------------------------------------
+    // Creation and functionality of the load buttons --
+    //--------------------------------------------------
     public void PlaceButtons()
     {
-        foreach (var obj in _gameObjList)
-            Destroy(obj);
-        _gameObjList.Clear();
+        float y = FindStartPosition();
         
-        float y = FindStartPosition(Settings.RecordsNames.Count);
-        for (int i = 0; i < Settings.RecordsNames.Count; i++)
+        ClearButtonsList();
+        foreach (var recordName in SaveSerial.RecordsNames)
         {
-            CreateButton(Settings.RecordsNames[i], y);
-            y -= _heightButton + _distanceBetweenButtons;
+            CreateButton(recordName, y);
+            y -= _distanceBetweenButtonsAxes;
         }
     }
 
-    private float FindStartPosition(float buttonsCount)
+    private float FindStartPosition()
     {
         float startPosition = 0f;
-        if (buttonsCount == 1) return startPosition;
-        if (buttonsCount % 2 != 0)
-        {
-            startPosition = 
-                (_heightButton + _distanceBetweenButtons) * (buttonsCount / 2 - 0.5f);
-        }
+        float buttonsNumber = SaveSerial.RecordsNames.Count;
+        
+        if (buttonsNumber == 1f) return startPosition;
+        if (buttonsNumber % 2 != 0)
+            startPosition = (_distanceBetweenButtonsAxes) * (buttonsNumber / 2 - 0.5f);
         else
-        {
-            startPosition = 
-                (_distanceBetweenButtons + _heightButton) / 2 +
-                (_heightButton + _distanceBetweenButtons) * (buttonsCount / 2 - 1);
-        }
+            startPosition = (_distanceBetweenButtonsAxes) / 2 +
+                            (_distanceBetweenButtonsAxes) * (buttonsNumber / 2 - 1);
         return startPosition;
     }
     
     private void CreateButton(string recordName, float yPosition)
     {
         // Button
-        _button = new GameObject();
-        _button.transform.parent = transform;
-        Button buttonComponent = _button.AddComponent<Button>();
-        buttonComponent.onClick.AddListener(delegate { LoadManagerMenu(recordName); });
-        Image imageComponent = _button.AddComponent<Image>();
-        imageComponent.sprite = sprite;
-        RectTransform buttonRectTransform = _button.GetComponent<RectTransform>();
+        GameObject button = new GameObject();
+        button.transform.parent = transform;
+        
+        button.AddComponent<Button>().onClick.AddListener(delegate { LoadManagerMenu(recordName); });
+        button.AddComponent<Image>().sprite = sprite;
+        
+        RectTransform buttonRectTransform = button.GetComponent<RectTransform>();
         buttonRectTransform.localPosition = new Vector3(0, yPosition, 0);
-        buttonRectTransform.sizeDelta = new Vector2(_wideButton, _heightButton);
+        buttonRectTransform.sizeDelta = new Vector2(LoadButton.Wide, LoadButton.Height);
         
         // Text
-        _text = new GameObject();
-        _text.transform.parent = _button.transform;
-        Text textComp = _text.AddComponent<Text>();
-        textComp.font = (Font)Resources.Load("BalooBhaijaanRegular");
+        GameObject text = new GameObject();
+        text.transform.parent = button.transform;
+        
+        Text textComp = text.AddComponent<Text>();
+        textComp.font = (Font)Resources.Load(LoadButton.TextFont);
         textComp.text = recordName;
-        textComp.fontSize = 50;
-        textComp.color = new Color32(15, 39, 86, 255);
-        textComp.alignment = TextAnchor.MiddleCenter;
+        textComp.fontSize = LoadButton.FontSize;
+        textComp.color = LoadButton.TextColor;
+        textComp.alignment = LoadButton.Alignment;
+        
         RectTransform textRectTransform = textComp.GetComponent<RectTransform>();
         textRectTransform.localPosition = Vector3.zero;
-        textRectTransform.sizeDelta = new Vector2(_wideButton, _heightButton);
+        textRectTransform.sizeDelta = new Vector2(LoadButton.Wide, LoadButton.Height);
         
-        _gameObjList.Add(_button);
-        _gameObjList.Add(_text);
+        // adding new button in the buttons list
+        _buttonsList.Add(button);
+        _buttonsList.Add(text);
+    }
+    
+    void ClearButtonsList()
+    {
+        foreach (var obj in _buttonsList)
+            Destroy(obj);
+        _buttonsList.Clear();
     }
 
     private void LoadManagerMenu(string fileName)
     {
-        Settings.GameMode = GameMode.LoadGame;
+        GameState.GameMode = GameMode.LoadGame;
         loadManagerMenu.SetActive(true);
-        _recordName = fileName;
+        _curRecordName = fileName;
     }
-
+    
+    
+    
+    //------------------------------------------------
+    // Functionality of "Load" and "Delete" buttons --
+    //------------------------------------------------
     private void LoadRecord()
     {
-        if (Settings.RecordsNames.Count < 10)
+        if (SaveSerial.RecordsNames.Count < 10)
         {
-            SaveSerial.LoadGame( _recordName + Settings.Extension);
-            Settings.GameMode = GameMode.NormalMode;
+            SaveSerial.LoadGame( _curRecordName + Settings.Extension);
+            GameState.GameMode = GameMode.NormalMode;
             _uiManager.RunScene();
         }
         else
+        {
             storageFullMenu.SetActive(true);
+            loadManagerMenu.SetActive(false);
+        }
     }
-
+    
     private void DeleteRecord()
     {
-        
-        SaveSerial.DeleteRecord(_recordName + Settings.Extension);
-        Settings.RecordsNames = SaveSerial.WriteRecordsFromDirectory();
-        
-        // _deleteAudio.Play();
+        SaveSerial.DeleteRecord(_curRecordName + Settings.Extension);
+        SaveSerial.RecordsNames = SaveSerial.WriteRecordsFromDirectory();
         _uiManager.RunScene();
     }
 }

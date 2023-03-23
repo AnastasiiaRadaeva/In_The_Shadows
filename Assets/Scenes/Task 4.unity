@@ -372,6 +372,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 216112747}
     - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
+      propertyPath: gameManagerObj
+      value: 
+      objectReference: {fileID: 1385547716}
+    - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
       propertyPath: items.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -574,7 +578,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: d7da043498c5848168f809fb9a005abf, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -1205,13 +1209,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e0226e91e6c4ac290fc47eae79ba37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  targetPosition: {x: -22, y: 3.6, z: 18.5}
+  victory: 0
   x: -0.02467
   y: -0.07539
   z: -0.00251
   w: 0.99685
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
-  targerPosition: {x: -22, y: 3.6, z: 18.5}
-  Victory: 0
 --- !u!1 &1244608976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1334,13 +1338,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e0226e91e6c4ac290fc47eae79ba37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  targetPosition: {x: -23.71, y: 3.5, z: 8.5}
+  victory: 0
   x: 0
   y: -0.09063
   z: 0
   w: 0.99588
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
-  targerPosition: {x: -23.71, y: 3.5, z: 8.5}
-  Victory: 0
 --- !u!1001 &1314144873
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1507,15 +1511,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18bf79bc2c6b34ed79e155c5e90af987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  items:
+  - {fileID: 1233140427}
+  - {fileID: 1273111311}
+  victory: 0
   nextButton: {fileID: 1314144875}
   victoryImage: {fileID: 997936544}
   unlockText: {fileID: 1542415181}
   mainCamera: {fileID: 289251037}
-  items:
-  - {fileID: 1233140427}
-  - {fileID: 1273111311}
-  countOfObjectsInProcess: -1
-  victory: 0
 --- !u!4 &1385547718
 Transform:
   m_ObjectHideFlags: 0

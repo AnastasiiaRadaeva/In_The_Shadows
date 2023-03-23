@@ -1,73 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Controlling of the "Back" button on the Tasks Scenes. Collecting of the game process data.
 public class BackButton : MonoBehaviour
 {
+    [SerializeField] private Canvas fadeScene;
+    [SerializeField] private GameObject gameManagerObj;
+    
     private List<GameObject> _items;
     private GameManager _gameManager;
-    
-    [SerializeField] private Canvas fadeScene;
     private Animator _transition;
     
-    // Start is called before the first frame update
     void Start()
     {
         _transition = fadeScene.GetComponent<Animator>();
-        if (Settings.GameMode == GameMode.NormalMode)
-        {
-            _gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
-            _items = _gameManager.items;
-        }
-        else
-        {
-            _gameManager = null;
-            _items = null;
-        }
+        _gameManager = gameManagerObj.GetComponent<GameManager>();
+        _items = GameState.GameMode == GameMode.NormalMode ? _gameManager.items : null;
+
         Button button = GetComponent<Button>();
         button.onClick.AddListener(PressButton);
     }
 
     void PressButton()
     {
-        if (Settings.GameMode == GameMode.NormalMode &&
-            (SceneManager.GetActiveScene().buildIndex - 1 == Settings.Data.tasksStatus.Length ||
-            !Settings.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1]))
+        if (GameState.GameMode == GameMode.NormalMode &&
+            // the last scene (Task 4)
+            (SceneManager.GetActiveScene().buildIndex - 1 == SaveSerial.Data.tasksStatus.Length || 
+            // the next task is locked
+            !SaveSerial.Data.tasksStatus[SceneManager.GetActiveScene().buildIndex - 1]))
         {
             CollectData();
         }
-        // SceneManager.LoadScene(SceneNames.Menu);
         StartCoroutine(LoadNextScene());
-    }
-    
-    IEnumerator LoadNextScene()
-    {
-        _transition.SetTrigger("Start");
-        yield return new WaitForSeconds(Settings.FadeTime);
-        SceneManager.LoadScene(SceneNames.Menu);
     }
 
     void CollectData()
     {
-        Settings.Data.activeTask = SceneManager.GetActiveScene().buildIndex;
-        if (_gameManager && _gameManager.victory)
-        {
-            Settings.Data.taskDone = true;
-            Settings.Data.saveForCurrentLevelExist = false;
-        }
+        SaveSerial.Data.activeTask = SceneManager.GetActiveScene().buildIndex;
+        if (_gameManager.victory)
+            SaveSerial.Data.taskDone = true;
         else if (_items != null)
         {
+            SaveSerial.Data.taskDone = false;
             for (int i = 0; i < _items.Count; i++)
             {
-                Settings.Data.itemsPosition[i] = _items[i].transform.position;
-                Settings.Data.itemsRotation[i] = _items[i].transform.rotation;
+                SaveSerial.Data.itemsPosition[i] = _items[i].transform.position;
+                SaveSerial.Data.itemsRotation[i] = _items[i].transform.rotation;
             }
-            Settings.Data.taskDone = false;
-            Settings.Data.saveForCurrentLevelExist = true;
         }
+    }
+    
+    IEnumerator LoadNextScene()
+    {
+        _transition.SetTrigger(Settings.FadeTrigger);
+        yield return new WaitForSeconds(Settings.FadeTime);
+        SceneManager.LoadScene(Settings.MenuSceneName);
     }
 }

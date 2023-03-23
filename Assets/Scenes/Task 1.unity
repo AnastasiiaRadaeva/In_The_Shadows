@@ -1214,14 +1214,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18bf79bc2c6b34ed79e155c5e90af987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  items:
+  - {fileID: 7673813267615176501}
+  victory: 0
   nextButton: {fileID: 282551860}
   victoryImage: {fileID: 349363425}
   unlockText: {fileID: 8712399962752093671}
   mainCamera: {fileID: 289251037}
-  items:
-  - {fileID: 7673813267615176501}
-  countOfObjectsInProcess: -1
-  victory: 0
 --- !u!4 &1385547718
 Transform:
   m_ObjectHideFlags: 0
@@ -1430,6 +1429,10 @@ PrefabInstance:
       propertyPath: firstObject
       value: 
       objectReference: {fileID: 7673813267615176501}
+    - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
+      propertyPath: gameManagerObj
+      value: 
+      objectReference: {fileID: 1385547716}
     - target: {fileID: 930095933253576402, guid: 3c737c53e2cee4c139307fb3e4a96edd, type: 3}
       propertyPath: items.Array.size
       value: 1
@@ -1731,13 +1734,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e0226e91e6c4ac290fc47eae79ba37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  targetPosition: {x: -20.7, y: 3, z: 14.8}
+  victory: 0
   x: 0.00811
   y: -0.14841
   z: 0.00583
   w: 0.98897
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
-  targerPosition: {x: -20.7, y: 3, z: 14.8}
-  Victory: 0
 --- !u!1001 &8712399962752093670
 PrefabInstance:
   m_ObjectHideFlags: 0
