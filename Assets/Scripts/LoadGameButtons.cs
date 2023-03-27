@@ -17,11 +17,17 @@ public class LoadGameButtons : MonoBehaviour
     private string _curRecordName = "";
     private List<GameObject> _buttonsList = new List<GameObject>();
     private float _distanceBetweenButtonsAxes;
+    private float _height;
+    private float _width;
+    private float _distanceBetweenButtons;
 
     public void Awake()
     {
         _uiManager = uiManager.GetComponent<UIManager>();
-        _distanceBetweenButtonsAxes = LoadButton.Height + LoadButton.DistanceBetweenButtons;
+        _height = Screen.height / LoadButton.HeightCoefficient;
+        _width = Screen.width / LoadButton.WidthCoefficient;
+        _distanceBetweenButtons = Screen.height / LoadButton.DistanceBetweenButtonsCoefficient;
+        _distanceBetweenButtonsAxes = _height + _distanceBetweenButtons;
         loadButton.onClick.AddListener(LoadRecord);
         deleteButton.onClick.AddListener(DeleteRecord);
     }
@@ -68,7 +74,7 @@ public class LoadGameButtons : MonoBehaviour
         
         RectTransform buttonRectTransform = button.GetComponent<RectTransform>();
         buttonRectTransform.localPosition = new Vector3(0, yPosition, 0);
-        buttonRectTransform.sizeDelta = new Vector2(LoadButton.Wide, LoadButton.Height);
+        buttonRectTransform.sizeDelta = new Vector2(_width, _height);
         
         // Text
         GameObject text = new GameObject();
@@ -83,7 +89,7 @@ public class LoadGameButtons : MonoBehaviour
         
         RectTransform textRectTransform = textComp.GetComponent<RectTransform>();
         textRectTransform.localPosition = Vector3.zero;
-        textRectTransform.sizeDelta = new Vector2(LoadButton.Wide, LoadButton.Height);
+        textRectTransform.sizeDelta = new Vector2(_width, _height);
         
         // adding new button in the buttons list
         _buttonsList.Add(button);

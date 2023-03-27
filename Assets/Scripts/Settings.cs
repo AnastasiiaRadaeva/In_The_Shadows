@@ -36,9 +36,9 @@ public static class Settings
 // load buttons const
 public struct LoadButton
 {
-    public const float Height = 100f;
-    public const float Wide = 570f;
-    public const float DistanceBetweenButtons = 40f;
+    public const float HeightCoefficient = 16f;
+    public const float WidthCoefficient = 4.5f;
+    public const float DistanceBetweenButtonsCoefficient = 50f;
     public const string TextFont = "BalooBhaijaanRegular";
     public const int FontSize = 50;
     public static readonly Color TextColor = new Color32(15, 39, 86, 255);
